@@ -1,0 +1,73 @@
+==================================================SOLUTION==============================================
+Let's say that vertices adjacent to 1 are "special".
+Consider the graph we get if vertex 1 is removed. It will consist of multiple connected components.
+If one of those components contains an odd number of special vertices, then Maria has a winning 
+strategy, because she can just keep challenging that component to eventually force the player
+to get stuck. Actually, she doesn't even need any particular strategy, just making arbitrary moves
+will work. 
+
+On the other hand, if every component has an even number of special vertices, then
+the player has a winning strategy. What will happen is that Maria will challenge some special vertex, 
+and then the player will choose some path inside the same component to another special vertex, and 
+challenge Maria. So what we want to do is to first find a matching of special vertices with edge
+disjoint paths. Then we just use these paths when Maria challenges, and we will win.
+
+It is always possible to find a matching of special vertices with edge disjoint paths if every connected
+component contains an even number of special vertices. One way to see it is to first match them arbitrarily
+with paths that are not edge disjoint. Then as long as there are to paths s1-t1 and s2-t2 that intersect, we 
+can reroute the paths as s1-s2 t1-t2 to make them edge disjoint. Since the total number of used edges goes
+down, this can only happen at most M times, so eventually we will get a valid matching. However, 
+implementing this will be quite slow.
+
+To speed it up, we will use a common trick in this sort of situation: the problem of finding a matching
+for a general graph is equivalent to finding it for a tree. The reason is that our solution
+definitely needs to work for trees since it should work for any graphs. But if it works for trees, then we
+can just pick any spanning tree of the graph and ignore the other edges.
+
+So the solution will be to first take a spanning tree of each connected component and ignore the other edges.
+We can now root each tree arbitrarily and find a matching with a simple recursive strategy. The algorithm
+will find a valid matching if there are an even number of special vertices in the subtree, and otherwise it
+will match as many as it can and connect one leftover special vertex with a path to the root. To do this, run the
+algorithm recursively for each subtree. This will create unmatched vertices for each subtree with odd number of
+special vertices, and possibly an unmatched vertex at the root. Now, pair up as many of these as possible. This
+will always leave at most one unmatched vertex.
+
+The complexity is O(n+m). Implementation is actually quite simple: we do not have to explicitly find a spanning
+tree and then run the recursion, instead the whole thing can be done in a single DFS.
+
+=============================================COMMENTS=======================================================
+
+Subtasks: 
+1) N,M <= 10. This can be solved with some kind of bruteforce, there are only <= N2^M game states. 
+It is a bit tricky to implement though, maybe this one should be worth more points.
+
+2) degree <= 2 for v > 1. Here it is trivial to find a path matching, and it should be clear to
+the contestant that this is a good idea after drawing the graph.
+
+3) In this one it is enough to correctly print YES or NO. 
+
+4) N,M <= 100, this rewards people who find the O(NM) or O(N^2M) algorithm to get a path matching.
+
+Interactor:
+It may seem like a hard problem to write a good AI that plays vertex 1. But as noted earlier, just making
+random moves is a winning strategy, so it could be a good idea to just let the interactor play randomly.
+This could even be included in the problem statement. I don't think it makes the problem easier, I can't
+really imagine any incorrect solutions that can exploit it.
+The alternative is to try and make the AI punish incorrect solutions by luring them into splitting
+up the graph into odd components. I think this sounds hard, and we could instead focus on having a lot of
+tricky graphs in the test data. For example, many "path like" components should be hard to deal with for
+incorrect solutions.
+
+So in short: if I prepared this problem I would take the easy way out and let the interactor play randomly,
+and instead I would focus on making the test data strong. But if you want to write a really smart interactor
+then go for it :).
+
+Other comments:
+I don't know how original the "match special vertices into edge disjoint paths" thing is. I haven't seen it
+before, but it sounds well-known. But even if someone has seen it, there are still some surrounding
+observations and implementation to be done. Overall I would rate it a 3/5 in terms of originality :).
+
+In terms of difficulty, I guess it could be the third problem on one of the days? Assuming that there
+are 4 problems each day like last year.
+
+Finally, the solution I included is only tested on a few small samples, so it could be buggy.
